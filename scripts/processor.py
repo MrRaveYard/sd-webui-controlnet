@@ -514,7 +514,7 @@ def zoe_depth(img, res=512, **kwargs):
     if model_zoe_depth is None:
         from annotator.zoe import ZoeDetector
         model_zoe_depth = ZoeDetector()
-    result = model_zoe_depth(img)
+    result = model_zoe_depth(img, kwargs['bits_per_channel'] if 'bits_per_channel' in kwargs else 8)
     return remove_pad(result), True
 
 

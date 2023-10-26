@@ -94,6 +94,7 @@ def controlnet_api(_: gr.Blocks, app: FastAPI):
         ),
         controlnet_threshold_a: float = Body(64, title="Controlnet Threshold a"),
         controlnet_threshold_b: float = Body(64, title="Controlnet Threshold b"),
+        controlnet_output_image_bits_per_channel: float = Body(8, title="Controlnet Output Image Channel Bits"),
     ):
         controlnet_module = global_state.reverse_preprocessor_aliases.get(
             controlnet_module, controlnet_module
@@ -127,12 +128,22 @@ def controlnet_api(_: gr.Blocks, app: FastAPI):
             json_acceptor = JsonAcceptor()
 
             results.append(
+
+                processor_module(
+                    img,
+                    res=controlnet_processor_res,
+                    thr_a=controlnet_threshold_a,
+                    thr_b=controlnet_threshold_b,
+                    json_pose_callback=json_acceptor.accept
+                )[0]
+                if controlnet_output_image_bits_per_channel is None or controlnet_output_image_bits_per_channel == 8 else
                 processor_module(
                     img,
                     res=controlnet_processor_res,
                     thr_a=controlnet_threshold_a,
                     thr_b=controlnet_threshold_b,
                     json_pose_callback=json_acceptor.accept,
+                    bits_per_channel=controlnet_output_image_bits_per_channel
                 )[0]
             )
 

@@ -33,7 +33,7 @@ class ZoeDetector:
         if self.model is not None:
             self.model.cpu()
 
-    def __call__(self, input_image):
+    def __call__(self, input_image, depth_bits=8):
         if self.model is None:
             self.load_model()
         self.model.to(self.device)
@@ -54,6 +54,7 @@ class ZoeDetector:
             depth -= vmin
             depth /= vmax - vmin
             depth = 1.0 - depth
-            depth_image = (depth * 255.0).clip(0, 255).astype(np.uint8)
+            max_depth = pow(2, depth_bits) - 1
+            depth_image = (depth * max_depth).clip(0, int(max_depth)).astype(np.uint16 if depth_bits == 16 else np.uint8)
 
             return depth_image
